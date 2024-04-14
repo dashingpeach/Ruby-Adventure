@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class RubyController : MonoBehaviour
 {
@@ -9,6 +12,14 @@ public class RubyController : MonoBehaviour
     public int maxHealth = 5;
 
     public GameObject projectilePrefab;
+    public ParticleSystem HealthParticle;
+    public ParticleSystem DamageParticle;
+
+    public int score =0;
+    public int scoreAmount;
+    public TextMeshProUGUI scoreText;
+    public bool gameOver = false;
+    public TextMeshProUGUI gameOverText;
 
     public float timeInvincible = 2.0f;
     
@@ -65,6 +76,7 @@ public void PlaySound(AudioClip clip)
         if (isInvincible)
             {
                 invincibleTimer -= Time.deltaTime;
+                //if time runs out
                 if (invincibleTimer < 0)
                     isInvincible = false;
             }
@@ -98,25 +110,68 @@ if (Input.GetKeyDown(KeyCode.X))
         rigidbody2d.MovePosition(position);
     }
 
+//changes rubys health
     public void ChangeHealth(int amount)
     {
+
+        if (currentHealth == 0){
+            gameOverText.text = "You lost! Press R to Restart!";
+            gameOver = true;
+            speed = 0.0f;
+
+                if (Input.GetKey(KeyCode.R))
+                {
+                    if (gameOver == true)
+                    {
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // this loads the currently active scene
+                    }
+                }
+        }
+
+        // if health goes down/negative number
           if (amount < 0)
         {
+            //play hit
             animator.SetTrigger("Hit");
+            //if already invincible do nothing
             if (isInvincible)
                 return;
             
+            //turn invincible
             isInvincible = true;
             invincibleTimer = timeInvincible;
+            // turn on damage when timer starts
+            ParticleSystem damage = Instantiate(DamageParticle, rigidbody2d.position + Vector2.up * 0.5f, Quaternion.identity);
+        }
+
+        if(amount > 0){
+             ParticleSystem health = Instantiate(HealthParticle, rigidbody2d.position + Vector2.up * 0.5f, Quaternion.identity);
+
+
         }
         
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
         UIHealthBar.instance.SetValue(currentHealth / (float)maxHealth);
     }
 
+public void changeScore(int scoreAmount) 
+{
+    score = score + scoreAmount;
+    scoreText.text = "Fixed Robots: " + score.ToString();
 
+    if (score == 2){
+        gameOverText.text = "You win!";
+        gameOver = true;
+        speed = 0.0f;
+    }
+
+    
+}
+
+// makes ruby throw the cog
 void Launch()
 {
+    //make cog exist
     GameObject projectileObject = Instantiate(projectilePrefab, rigidbody2d.position + Vector2.up * 0.5f, Quaternion.identity);
 
     Projectile projectile = projectileObject.GetComponent<Projectile>();

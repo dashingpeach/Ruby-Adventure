@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+ private RubyController rubyController; // this line of code creates a variable called "rubyController" to store information about the RubyController script!
+
     public float speed;
     public bool vertical;
     public float changeTime = 3.0f;
@@ -23,6 +25,18 @@ public class EnemyController : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         timer = changeTime;
         animator = GetComponent<Animator>();
+
+        GameObject rubyControllerObject = GameObject.FindWithTag("rubyController"); //this line of code finds the RubyController script by looking for a "RubyController" tag on Ruby
+            if (rubyControllerObject != null)
+             {
+                 rubyController = rubyControllerObject.GetComponent<RubyController>(); //and this line of code finds the rubyController and then stores it in a variabl
+                print ("Found the RubyConroller Script!");
+             }
+
+        if (rubyController == null)
+        {
+            print ("Cannot find GameController Script!");
+        }
     }
 
     void Update()
@@ -87,5 +101,6 @@ public class EnemyController : MonoBehaviour
         animator.SetTrigger("Fixed");
         
         smokeEffect.Stop();
+        rubyController.changeScore(1);
     }
 }
