@@ -7,28 +7,32 @@ using UnityEngine.SceneManagement;
 
 public class RubyController : MonoBehaviour
 {
+    // ruby variables
     public float speed = 3.0f;
-    
     public int maxHealth = 5;
 
+//projectile 
     public GameObject projectilePrefab;
+//particles
     public ParticleSystem HealthParticle;
     public ParticleSystem DamageParticle;
-
+//total score and results
     public int score =0;
     public int scoreAmount;
     public TextMeshProUGUI scoreText;
     public bool gameOver = false;
     public TextMeshProUGUI gameOverText;
 
+//health
     public float timeInvincible = 2.0f;
-    
+
     int currentHealth;
     public int health { get { return currentHealth; }}
     
     bool isInvincible;
     float invincibleTimer;
 
+//rigid body and animation
     Rigidbody2D rigidbody2d;
     float horizontal;
     float vertical;
@@ -36,8 +40,14 @@ public class RubyController : MonoBehaviour
     Animator animator;
     Vector2 lookDirection = new Vector2(1,0);
 
-    AudioSource audioSource;
-    
+//audio 
+    AudioSource audioSource; 
+    public AudioClip playerHit; //player hit
+    public AudioClip cogThrowClip; //cog 
+    public AudioClip winSound;
+    public AudioClip loseSound;
+    public AudioClip jambiSound;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,14 +58,14 @@ public class RubyController : MonoBehaviour
         audioSource= GetComponent<AudioSource>();
     }
 
-
+//play sound function
 public void PlaySound(AudioClip clip)
 {
     audioSource.PlayOneShot(clip);
 }
 
-
     // Update is called once per frame
+    //update ruby position
     void Update()
     {
         horizontal = Input.GetAxis("Horizontal");
@@ -80,25 +90,26 @@ public void PlaySound(AudioClip clip)
                 if (invincibleTimer < 0)
                     isInvincible = false;
             }
-
+//launch cog
          if(Input.GetKeyDown(KeyCode.C))
         {
              Launch();
         }
-
+//talk to npc
 if (Input.GetKeyDown(KeyCode.X))
     {
         RaycastHit2D hit = Physics2D.Raycast(rigidbody2d.position + Vector2.up * 0.2f, lookDirection, 1.5f, LayerMask.GetMask("NPC"));
     if (hit.collider != null)
-{
-    NonPlayerCharacter character = hit.collider.GetComponent<NonPlayerCharacter>();
-    if (character != null)
     {
-        character.DisplayDialog();
-    }  
-}
-    }
+        NonPlayerCharacter character = hit.collider.GetComponent<NonPlayerCharacter>();
+        if (character != null)
+        {
+            character.DisplayDialog();
+            audioSource.PlayOneShot(jambiSound);
 
+        }  
+    }
+}
 }
     
     void FixedUpdate()
@@ -115,8 +126,9 @@ if (Input.GetKeyDown(KeyCode.X))
     {
 
         if (currentHealth == 0){
-            gameOverText.text = "You lost! Press R to Restart!";
             gameOver = true;
+            gameOverText.text = "You lost! Press R to Restart!";
+            audioSource.PlayOneShot(loseSound);
             speed = 0.0f;
 
                 if (Input.GetKey(KeyCode.R))
@@ -133,6 +145,8 @@ if (Input.GetKeyDown(KeyCode.X))
         {
             //play hit
             animator.SetTrigger("Hit");
+            audioSource.PlayOneShot(playerHit);
+
             //if already invincible do nothing
             if (isInvincible)
                 return;
@@ -161,11 +175,22 @@ public void changeScore(int scoreAmount)
 
     if (score == 2){
         gameOverText.text = "You win!";
+        audioSource.PlayOneShot(winSound);
         gameOver = true;
         speed = 0.0f;
     }
 
     
+}
+
+public void changeSpeedUp()
+{
+    speed = speed + 1.5f;
+
+}
+
+public void changeSpeedDown(){
+    speed = speed - 1.5f;
 }
 
 // makes ruby throw the cog
@@ -178,6 +203,7 @@ void Launch()
     projectile.Launch(lookDirection, 300);
 
     animator.SetTrigger("Launch");
+    audioSource.PlayOneShot(cogThrowClip);
 }
 
 }

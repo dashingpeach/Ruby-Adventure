@@ -10,7 +10,7 @@ public class DangerZone : MonoBehaviour
 
         if (controller != null)
         {
-            controller.ChangeHealth(-1);
+           controller.ChangeHealth(-1);
         }
     }
 

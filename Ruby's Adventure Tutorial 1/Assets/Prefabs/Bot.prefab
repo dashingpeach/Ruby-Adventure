@@ -153,6 +153,7 @@ MonoBehaviour:
   vertical: 0
   changeTime: 3
   smokeEffect: {fileID: 4461449670074820300}
+  playerHit: {fileID: 8300000, guid: 9b1bb1f450b7d444fa4a8019d13519a7, type: 3}
 --- !u!95 &6195362172528405172
 Animator:
   serializedVersion: 5
